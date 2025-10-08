@@ -1,15 +1,26 @@
 import { Preloader } from '@ui';
 import { FeedUI } from '@ui-pages';
-import { TOrder } from '@utils-types';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
+import { useAppSelector, useAppDispatch } from '@services/store';
+import { activateAuroraStream } from '@slices/aurora-stream-slice';
 
 export const Feed: FC = () => {
-  /** TODO: взять переменную из стора */
-  const orders: TOrder[] = [];
+  const dispatch = useAppDispatch();
+  const { streamData, isStreaming: isLoading } = useAppSelector(
+    (state) => state.auroraStream
+  );
 
-  if (!orders.length) {
+  useEffect(() => {
+    dispatch(activateAuroraStream());
+  }, [dispatch]);
+
+  const handleGetFeeds = () => {
+    dispatch(activateAuroraStream());
+  };
+
+  if (isLoading) {
     return <Preloader />;
   }
 
-  <FeedUI orders={orders} handleGetFeeds={() => {}} />;
+  return <FeedUI orders={streamData} handleGetFeeds={handleGetFeeds} />;
 };

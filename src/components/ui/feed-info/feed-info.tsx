@@ -32,7 +32,10 @@ const HalfColumn: FC<HalfColumnProps> = ({ orders, title, textColor }) => (
       {orders.map((item, index) => (
         <li
           className={`text text_type_digits-default ${styles.list_item}`}
-          style={{ color: textColor === 'blue' ? '#00cccc' : '#F2F2F3' }}
+          style={{
+            color: textColor === 'blue' ? '#00cccc' : '#F2F2F3',
+            textShadow: 'none'
+          }}
           key={index}
         >
           {item}
@@ -47,6 +50,15 @@ const Column: FC<TColumnProps> = ({ title, content }) => (
     <h3 className={`pt-15 text text_type_main-medium ${styles.title}`}>
       {title}:
     </h3>
-    <p className={`text text_type_digits-large ${styles.content}`}>{content}</p>
+    <p
+      className={`text text_type_digits-large ${styles.content}`}
+      style={{
+        color: '#ffffff',
+        textShadow:
+          '0 0 10px #0066ff, 0 0 20px #0066ff, 0 0 30px #0066ff, 0 0 40px #0066ff'
+      }}
+    >
+      {content}
+    </p>
   </>
 );

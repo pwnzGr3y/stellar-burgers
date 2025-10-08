@@ -4,7 +4,7 @@ import {
   Button,
   PasswordInput
 } from '@zlden/react-developer-burger-ui-components';
-import styles from '../common.module.css';
+import styles from '@ui-pages/common.module.css';
 import { Link } from 'react-router-dom';
 import { ResetPasswordUIProps } from './type';
 
@@ -41,6 +41,8 @@ export const ResetPasswordUI: FC<ResetPasswordUIProps> = ({
             error={false}
             errorText=''
             size='default'
+            onPointerEnterCapture={undefined}
+            onPointerLeaveCapture={undefined}
           />
         </div>
         <div className={`pb-6 ${styles.button}`}>

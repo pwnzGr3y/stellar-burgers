@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
-import { PageUIProps } from '../common-type';
+import { PageUIProps } from '@ui-pages/common-type';
 
 export type RegisterUIProps = PageUIProps & {
   password: string;

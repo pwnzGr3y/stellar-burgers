@@ -58,7 +58,7 @@ module.exports = {
   ],
   resolve: {
     extensions: [
-      '*',
+      '.*',
       '.js',
       '.jsx',
       '.ts',
@@ -76,9 +76,20 @@ module.exports = {
       '@ui': path.resolve(__dirname, './src/components/ui'),
       '@ui-pages': path.resolve(__dirname, './src/components/ui/pages'),
       '@utils-types': path.resolve(__dirname, './src/utils/types'),
-      '@api': path.resolve(__dirname, './src/utils/burger-api.ts'),
+      '@api': path.resolve(__dirname, './src/utils/burger-api'),
       '@slices': path.resolve(__dirname, './src/services/slices'),
-      '@selectors': path.resolve(__dirname, './src/services/selectors')
+      '@selectors': path.resolve(__dirname, './src/services/selectors'),
+      '@index.css': path.resolve(__dirname, './src/index.css'),
+      '@services': path.resolve(__dirname, './src/services'),
+      '@utils': path.resolve(__dirname, './src/utils'),
+      '@images': path.resolve(__dirname, './src/images'),
+      '@ui-pages/*': path.resolve(__dirname, './src/components/ui/pages/*'),
+      '@slices/crystal-gateway-slice': path.resolve(__dirname, './src/services/slices/crystal-gateway-slice'),
+      '@slices/fusion-assembler-slice': path.resolve(__dirname, './src/services/slices/fusion-assembler-slice'),
+      '@slices/quantum-materials-slice': path.resolve(__dirname, './src/services/slices/quantum-materials-slice'),
+      '@slices/phoenix-transactions-slice': path.resolve(__dirname, './src/services/slices/phoenix-transactions-slice'),
+      '@slices/aurora-stream-slice': path.resolve(__dirname, './src/services/slices/aurora-stream-slice'),
+      '@slices/dragon-history-slice': path.resolve(__dirname, './src/services/slices/dragon-history-slice')
     }
   },
   output: {
