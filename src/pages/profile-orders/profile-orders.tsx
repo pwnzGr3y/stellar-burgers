@@ -1,10 +1,17 @@
 import { ProfileOrdersUI } from '@ui-pages';
-import { TOrder } from '@utils-types';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
+import { useAppSelector, useAppDispatch } from '@services/store';
+import { retrieveDragonHistory } from '@slices/dragon-history-slice';
 
 export const ProfileOrders: FC = () => {
-  /** TODO: взять переменную из стора */
-  const orders: TOrder[] = [];
+  const dispatch = useAppDispatch();
+  const { historicalRecords: streamData } = useAppSelector(
+    (state) => state.dragonHistory
+  );
 
-  return <ProfileOrdersUI orders={orders} />;
+  useEffect(() => {
+    dispatch(retrieveDragonHistory());
+  }, [dispatch]);
+
+  return <ProfileOrdersUI orders={streamData} />;
 };

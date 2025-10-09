@@ -1,36 +1,57 @@
-import { FC, useMemo } from 'react';
-import { Preloader } from '../ui/preloader';
-import { OrderInfoUI } from '../ui/order-info';
-import { TIngredient } from '@utils-types';
+import { FC, useMemo, useEffect } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
+import { useAppSelector, useAppDispatch } from '@services/store';
+import { Preloader } from '@ui/preloader';
+import { OrderInfoUI } from '@ui/order-info';
+import { TIngredient, TOrder } from '@utils-types';
+import { retrievePhoenixTransaction } from '@slices/phoenix-transactions-slice';
 
 export const OrderInfo: FC = () => {
-  /** TODO: взять переменные orderData и ingredients из стора */
-  const orderData = {
-    createdAt: '',
-    ingredients: [],
-    _id: '',
-    status: '',
-    name: '',
-    updatedAt: 'string',
-    number: 0
-  };
+  const { number } = useParams<{ number: string }>();
+  const location = useLocation();
+  const dispatch = useAppDispatch();
 
-  const ingredients: TIngredient[] = [];
+  const { activeTransaction: orderData, isProcessing: isLoading } =
+    useAppSelector((state) => state.phoenixTransactions);
+  const { materials: ingredients } = useAppSelector(
+    (state) => state.quantumMaterials
+  );
+
+  const orderFromFeed = useAppSelector((state) =>
+    state.auroraStream.streamData.find(
+      (order: TOrder) => order.number === Number(number)
+    )
+  );
+  const orderFromProfile = useAppSelector((state) =>
+    state.dragonHistory.historicalRecords.find(
+      (order: TOrder) => order.number === Number(number)
+    )
+  );
+
+  useEffect(() => {
+    if (!orderFromFeed && !orderFromProfile && number) {
+      dispatch(retrievePhoenixTransaction(Number(number)));
+    }
+  }, [dispatch, number, orderFromFeed, orderFromProfile]);
+
+  const orderDataToUse = orderFromFeed || orderFromProfile || orderData;
 
   /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {
-    if (!orderData || !ingredients.length) return null;
+    if (!orderDataToUse || !ingredients.length) return null;
 
-    const date = new Date(orderData.createdAt);
+    const date = new Date(orderDataToUse.createdAt);
 
     type TIngredientsWithCount = {
       [key: string]: TIngredient & { count: number };
     };
 
-    const ingredientsInfo = orderData.ingredients.reduce(
-      (acc: TIngredientsWithCount, item) => {
+    const ingredientsInfo = orderDataToUse.ingredients.reduce(
+      (acc: TIngredientsWithCount, item: string) => {
         if (!acc[item]) {
-          const ingredient = ingredients.find((ing) => ing._id === item);
+          const ingredient = ingredients.find(
+            (ing: TIngredient) => ing._id === item
+          );
           if (ingredient) {
             acc[item] = {
               ...ingredient,
@@ -43,23 +64,25 @@ export const OrderInfo: FC = () => {
 
         return acc;
       },
-      {}
+      {} as TIngredientsWithCount
     );
 
-    const total = Object.values(ingredientsInfo).reduce(
-      (acc, item) => acc + item.price * item.count,
+    const totalCount = Object.values(ingredientsInfo).reduce(
+      (acc: number, item: TIngredient & { count: number }) =>
+        acc + item.price * item.count,
       0
     );
 
     return {
-      ...orderData,
+      ...orderDataToUse,
       ingredientsInfo,
       date,
-      total
+      totalCount,
+      total: totalCount
     };
-  }, [orderData, ingredients]);
+  }, [orderDataToUse, ingredients]);
 
-  if (!orderInfo) {
+  if (isLoading || !orderInfo) {
     return <Preloader />;
   }
 

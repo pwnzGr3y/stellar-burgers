@@ -4,7 +4,7 @@ import {
   Button,
   PasswordInput
 } from '@zlden/react-developer-burger-ui-components';
-import styles from '../common.module.css';
+import styles from '@ui-pages/common.module.css';
 import { Link } from 'react-router-dom';
 import { LoginUIProps } from './type';
 
@@ -35,6 +35,8 @@ export const LoginUI: FC<LoginUIProps> = ({
               error={false}
               errorText=''
               size='default'
+              onPointerEnterCapture={undefined}
+              onPointerLeaveCapture={undefined}
             />
           </div>
           <div className='pb-6'>

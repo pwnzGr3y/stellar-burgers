@@ -1,14 +1,31 @@
 import { useState, useRef, useEffect, FC } from 'react';
 import { useInView } from 'react-intersection-observer';
+import { useAppSelector, useAppDispatch } from '@services/store';
+import { fetchQuantumMaterials } from '@slices/quantum-materials-slice';
 
 import { TTabMode } from '@utils-types';
-import { BurgerIngredientsUI } from '../ui/burger-ingredients';
+import { BurgerIngredientsUI } from '@ui/burger-ingredients';
 
 export const BurgerIngredients: FC = () => {
-  /** TODO: взять переменные из стора */
-  const buns = [];
-  const mains = [];
-  const sauces = [];
+  const dispatchAction = useAppDispatch();
+  const { materials: ingredientsList, isLoading: isLoading } = useAppSelector(
+    (state) => state.quantumMaterials
+  );
+
+  // Фильтрация ингредиентов по типам
+  const bunIngredients = ingredientsList.filter((item) => item.type === 'bun');
+  const mainIngredients = ingredientsList.filter(
+    (item) => item.type === 'main'
+  );
+  const sauceIngredients = ingredientsList.filter(
+    (item) => item.type === 'sauce'
+  );
+
+  useEffect(() => {
+    if (ingredientsList.length === 0 && !isLoading) {
+      dispatchAction(fetchQuantumMaterials());
+    }
+  }, [dispatchAction, ingredientsList.length, isLoading]);
 
   const [currentTab, setCurrentTab] = useState<TTabMode>('bun');
   const titleBunRef = useRef<HTMLHeadingElement>(null);
@@ -47,14 +64,16 @@ export const BurgerIngredients: FC = () => {
       titleSaucesRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  return null;
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <BurgerIngredientsUI
       currentTab={currentTab}
-      buns={buns}
-      mains={mains}
-      sauces={sauces}
+      buns={bunIngredients}
+      mains={mainIngredients}
+      sauces={sauceIngredients}
       titleBunRef={titleBunRef}
       titleMainRef={titleMainRef}
       titleSaucesRef={titleSaucesRef}

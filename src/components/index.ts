@@ -1,14 +1,22 @@
-export * from './app-header';
-export * from './burger-constructor';
-export * from './burger-constructor-element';
-export * from './burger-ingredient';
-export * from './burger-ingredients';
-export * from './feed-info';
-export * from './ingredient-details';
-export * from './ingredients-category';
-export * from './modal';
-export * from './order-card';
-export * from './order-info';
-export * from './order-status';
-export * from './orders-list';
-export * from './profile-menu';
+// Основные компоненты приложения
+export { AppHeader } from './app-header';
+export { BurgerConstructor } from './burger-constructor';
+export { BurgerConstructorElement } from './burger-constructor-element';
+export { BurgerIngredient } from './burger-ingredient';
+export { BurgerIngredients } from './burger-ingredients';
+
+// Информационные компоненты
+export { FeedInfo } from './feed-info';
+export { IngredientDetails } from './ingredient-details';
+export { IngredientsCategory } from './ingredients-category';
+export { OrderInfo } from './order-info';
+export { OrderStatus } from './order-status';
+
+// Компоненты заказов
+export { OrderCard } from './order-card';
+export { OrdersList } from './orders-list';
+
+// Модальные и служебные компоненты
+export { Modal } from './modal';
+export { ProfileMenu } from './profile-menu';
+export { ProtectedRoute } from './protected-route';
