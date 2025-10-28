@@ -68,7 +68,17 @@ const AppContent = () => {
           path='/profile/orders'
           element={<ProtectedRoute element={<ProfileOrders />} />}
         />
-        <Route path='/ingredients/:id' element={<IngredientDetails />} />
+        <Route
+          path='/ingredients/:id'
+          element={
+            <>
+              <ConstructorPage />
+              <Modal title='Детали ингредиента' onClose={() => navigate('/')}>
+                <IngredientDetails />
+              </Modal>
+            </>
+          }
+        />
         <Route path='/feed/:number' element={<OrderInfo />} />
         <Route
           path='/profile/orders/:number'

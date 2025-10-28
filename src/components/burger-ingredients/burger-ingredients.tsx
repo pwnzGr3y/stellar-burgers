@@ -25,7 +25,7 @@ export const BurgerIngredients: FC = () => {
     if (ingredientsList.length === 0 && !isLoading) {
       dispatchAction(fetchQuantumMaterials());
     }
-  }, [dispatchAction, ingredientsList.length, isLoading]);
+  }, []);
 
   const [currentTab, setCurrentTab] = useState<TTabMode>('bun');
   const titleBunRef = useRef<HTMLHeadingElement>(null);
