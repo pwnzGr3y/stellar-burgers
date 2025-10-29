@@ -7,12 +7,25 @@ import {
   TRegisterData,
   TLoginData
 } from './types';
+import { apiCircuitBreaker } from './circuit-breaker';
 
 const URL =
   process.env.BURGER_API_URL || 'https://norma.nomoreparties.space/api';
 
 const checkResponse = <T>(res: Response): Promise<T> =>
   res.ok ? res.json() : res.json().then((err) => Promise.reject(err));
+
+const fetchWithTimeout = (
+  url: RequestInfo,
+  options: RequestInit = {},
+  timeout = 10000
+): Promise<Response> =>
+  Promise.race([
+    fetch(url, options),
+    new Promise<Response>((_, reject) =>
+      setTimeout(() => reject(new Error('Request timeout')), timeout)
+    )
+  ]);
 
 type TServerResponse<T> = {
   success: boolean;
@@ -80,20 +93,24 @@ type TOrdersResponse = TServerResponse<{
 }>;
 
 export const getIngredientsApi = () =>
-  fetch(`${URL}/ingredients`)
-    .then((res) => checkResponse<TIngredientsResponse>(res))
-    .then((data) => {
-      if (data?.success) return data.data;
-      return Promise.reject(data);
-    });
+  apiCircuitBreaker.execute(() =>
+    fetchWithTimeout(`${URL}/ingredients`)
+      .then((res) => checkResponse<TIngredientsResponse>(res))
+      .then((data) => {
+        if (data?.success) return data.data;
+        return Promise.reject(data);
+      })
+  );
 
 export const getFeedsApi = () =>
-  fetch(`${URL}/orders/all`)
-    .then((res) => checkResponse<TFeedsResponse>(res))
-    .then((data) => {
-      if (data?.success) return data;
-      return Promise.reject(data);
-    });
+  apiCircuitBreaker.execute(() =>
+    fetchWithTimeout(`${URL}/orders/all`)
+      .then((res) => checkResponse<TFeedsResponse>(res))
+      .then((data) => {
+        if (data?.success) return data;
+        return Promise.reject(data);
+      })
+  );
 
 export const getOrdersApi = () =>
   fetchWithRefresh<TFeedsResponse>(`${URL}/orders`, {
@@ -132,12 +149,14 @@ type TOrderResponse = TServerResponse<{
 }>;
 
 export const getOrderByNumberApi = (number: number) =>
-  fetch(`${URL}/orders/${number}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  }).then((res) => checkResponse<TOrderResponse>(res));
+  apiCircuitBreaker.execute(() =>
+    fetchWithTimeout(`${URL}/orders/${number}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then((res) => checkResponse<TOrderResponse>(res))
+  );
 
 type TAuthResponse = TServerResponse<{
   refreshToken: string;
