@@ -1,16 +1,12 @@
 import phoenixTransactionsReducer, {
   initiatePhoenixTransaction,
   retrievePhoenixTransaction,
-  clearPhoenixTransaction
+  clearPhoenixTransaction,
+  initialPhoenixState
 } from './phoenix-transactions-slice';
 import { TOrder } from '@utils-types';
 
 describe('phoenix-transactions-slice', () => {
-  const initialState = {
-    activeTransaction: null,
-    isProcessing: false,
-    transactionError: null
-  };
 
   const mockOrder: TOrder = {
     _id: '123',
@@ -24,7 +20,7 @@ describe('phoenix-transactions-slice', () => {
 
   it('должен вернуть начальное состояние', () => {
     expect(phoenixTransactionsReducer(undefined, { type: 'unknown' })).toEqual(
-      initialState
+      initialPhoenixState
     );
   });
 
@@ -48,7 +44,7 @@ describe('phoenix-transactions-slice', () => {
   describe('initiatePhoenixTransaction', () => {
     it('должен установить isProcessing в true при pending', () => {
       const action = { type: initiatePhoenixTransaction.pending.type };
-      const state = phoenixTransactionsReducer(initialState, action);
+      const state = phoenixTransactionsReducer(initialPhoenixState, action);
       expect(state.isProcessing).toBe(true);
       expect(state.transactionError).toBe(null);
     });
@@ -58,7 +54,7 @@ describe('phoenix-transactions-slice', () => {
         type: initiatePhoenixTransaction.fulfilled.type,
         payload: mockOrder
       };
-      const state = phoenixTransactionsReducer(initialState, action);
+      const state = phoenixTransactionsReducer(initialPhoenixState, action);
       expect(state.isProcessing).toBe(false);
       expect(state.activeTransaction).toEqual(mockOrder);
       expect(state.transactionError).toBe(null);
@@ -69,7 +65,7 @@ describe('phoenix-transactions-slice', () => {
         type: initiatePhoenixTransaction.fulfilled.type,
         payload: null
       };
-      const state = phoenixTransactionsReducer(initialState, action);
+      const state = phoenixTransactionsReducer(initialPhoenixState, action);
       expect(state.activeTransaction).toBe(null);
     });
 
@@ -79,7 +75,7 @@ describe('phoenix-transactions-slice', () => {
         type: initiatePhoenixTransaction.rejected.type,
         error: { message: errorMessage }
       };
-      const state = phoenixTransactionsReducer(initialState, action);
+      const state = phoenixTransactionsReducer(initialPhoenixState, action);
       expect(state.isProcessing).toBe(false);
       expect(state.transactionError).toBe(errorMessage);
     });
@@ -89,7 +85,7 @@ describe('phoenix-transactions-slice', () => {
         type: initiatePhoenixTransaction.rejected.type,
         error: {}
       };
-      const state = phoenixTransactionsReducer(initialState, action);
+      const state = phoenixTransactionsReducer(initialPhoenixState, action);
       expect(state.transactionError).toBe('Ошибка инициации феникс-транзакции');
     });
   });
@@ -97,7 +93,7 @@ describe('phoenix-transactions-slice', () => {
   describe('retrievePhoenixTransaction', () => {
     it('должен установить isProcessing в true при pending', () => {
       const action = { type: retrievePhoenixTransaction.pending.type };
-      const state = phoenixTransactionsReducer(initialState, action);
+      const state = phoenixTransactionsReducer(initialPhoenixState, action);
       expect(state.isProcessing).toBe(true);
       expect(state.transactionError).toBe(null);
     });
@@ -107,7 +103,7 @@ describe('phoenix-transactions-slice', () => {
         type: retrievePhoenixTransaction.fulfilled.type,
         payload: mockOrder
       };
-      const state = phoenixTransactionsReducer(initialState, action);
+      const state = phoenixTransactionsReducer(initialPhoenixState, action);
       expect(state.isProcessing).toBe(false);
       expect(state.activeTransaction).toEqual(mockOrder);
     });
@@ -117,7 +113,7 @@ describe('phoenix-transactions-slice', () => {
         type: retrievePhoenixTransaction.fulfilled.type,
         payload: null
       };
-      const state = phoenixTransactionsReducer(initialState, action);
+      const state = phoenixTransactionsReducer(initialPhoenixState, action);
       expect(state.activeTransaction).toBe(null);
     });
 
@@ -127,7 +123,7 @@ describe('phoenix-transactions-slice', () => {
         type: retrievePhoenixTransaction.rejected.type,
         error: { message: errorMessage }
       };
-      const state = phoenixTransactionsReducer(initialState, action);
+      const state = phoenixTransactionsReducer(initialPhoenixState, action);
       expect(state.isProcessing).toBe(false);
       expect(state.transactionError).toBe(errorMessage);
     });
@@ -137,14 +133,14 @@ describe('phoenix-transactions-slice', () => {
         type: retrievePhoenixTransaction.rejected.type,
         error: {}
       };
-      const state = phoenixTransactionsReducer(initialState, action);
+      const state = phoenixTransactionsReducer(initialPhoenixState, action);
       expect(state.transactionError).toBe('Ошибка получения феникс-транзакции');
     });
   });
 
   describe('последовательность действий', () => {
     it('должен корректно обработать создание заказа и очистку', () => {
-      let state = phoenixTransactionsReducer(initialState, {
+      let state = phoenixTransactionsReducer(initialPhoenixState, {
         type: initiatePhoenixTransaction.fulfilled.type,
         payload: mockOrder
       });

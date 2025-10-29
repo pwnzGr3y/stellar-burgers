@@ -9,7 +9,7 @@ type TQuantumMaterialsState = {
   lastFetchAttempt: number | null;
 };
 
-const initialQuantumState: TQuantumMaterialsState = {
+export const initialQuantumState: TQuantumMaterialsState = {
   materials: [],
   isLoading: false,
   errorMessage: null,

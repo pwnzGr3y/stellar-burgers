@@ -10,7 +10,7 @@ type TAuroraStreamState = {
   streamError: string | null;
 };
 
-const initialAuroraState: TAuroraStreamState = {
+export const initialAuroraState: TAuroraStreamState = {
   streamData: [],
   totalCount: 0,
   todayCount: 0,

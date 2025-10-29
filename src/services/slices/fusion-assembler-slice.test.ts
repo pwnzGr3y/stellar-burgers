@@ -2,7 +2,8 @@ import fusionAssemblerReducer, {
   addComponentToAssembly,
   removeComponentFromAssembly,
   rearrangeAssemblyComponents,
-  resetFusionAssembler
+  resetFusionAssembler,
+  initialFusionState
 } from './fusion-assembler-slice';
 import { TConstructorIngredient } from '@utils-types';
 
@@ -14,11 +15,6 @@ describe('fusion-assembler-slice', () => {
   afterAll(() => {
     console.warn = originalWarn;
   });
-
-  const initialState = {
-    primaryComponent: null,
-    assemblyComponents: []
-  };
 
   const mockBun: TConstructorIngredient = {
     _id: 'bun-1',
@@ -67,14 +63,14 @@ describe('fusion-assembler-slice', () => {
 
   it('должен вернуть начальное состояние', () => {
     expect(fusionAssemblerReducer(undefined, { type: 'unknown' })).toEqual(
-      initialState
+      initialFusionState
     );
   });
 
   describe('addComponentToAssembly', () => {
     it('должен добавить булку в primaryComponent', () => {
       const state = fusionAssemblerReducer(
-        initialState,
+        initialFusionState,
         addComponentToAssembly(mockBun)
       );
       expect(state.primaryComponent).toEqual(mockBun);
@@ -96,7 +92,7 @@ describe('fusion-assembler-slice', () => {
 
     it('должен добавить соус в assemblyComponents', () => {
       const state = fusionAssemblerReducer(
-        initialState,
+        initialFusionState,
         addComponentToAssembly(mockSauce)
       );
       expect(state.assemblyComponents).toHaveLength(1);
@@ -105,7 +101,7 @@ describe('fusion-assembler-slice', () => {
 
     it('должен добавить начинку в assemblyComponents', () => {
       const state = fusionAssemblerReducer(
-        initialState,
+        initialFusionState,
         addComponentToAssembly(mockMain)
       );
       expect(state.assemblyComponents).toHaveLength(1);
@@ -114,7 +110,7 @@ describe('fusion-assembler-slice', () => {
 
     it('должен добавить несколько компонентов', () => {
       let state = fusionAssemblerReducer(
-        initialState,
+        initialFusionState,
         addComponentToAssembly(mockSauce)
       );
       state = fusionAssemblerReducer(state, addComponentToAssembly(mockMain));
@@ -128,10 +124,10 @@ describe('fusion-assembler-slice', () => {
         type: ''
       } as any;
       const state = fusionAssemblerReducer(
-        initialState,
+        initialFusionState,
         addComponentToAssembly(invalidComponent)
       );
-      expect(state).toEqual(initialState);
+      expect(state).toEqual(initialFusionState);
     });
   });
 
@@ -227,7 +223,7 @@ describe('fusion-assembler-slice', () => {
         stateWithData,
         resetFusionAssembler()
       );
-      expect(state).toEqual(initialState);
+      expect(state).toEqual(initialFusionState);
     });
   });
 });

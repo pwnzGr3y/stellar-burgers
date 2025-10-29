@@ -9,7 +9,7 @@ type TPhoenixTransactionsState = {
   transactionError: string | null;
 };
 
-const initialPhoenixState: TPhoenixTransactionsState = {
+export const initialPhoenixState: TPhoenixTransactionsState = {
   activeTransaction: null,
   isProcessing: false,
   transactionError: null

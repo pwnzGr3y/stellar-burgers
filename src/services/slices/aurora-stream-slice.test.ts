@@ -1,16 +1,10 @@
 import auroraStreamReducer, {
-  activateAuroraStream
+  activateAuroraStream,
+  initialAuroraState
 } from './aurora-stream-slice';
 import { TOrder } from '@utils-types';
 
 describe('aurora-stream-slice', () => {
-  const initialState = {
-    streamData: [],
-    totalCount: 0,
-    todayCount: 0,
-    isStreaming: false,
-    streamError: null
-  };
 
   const mockOrders: TOrder[] = [
     {
@@ -41,14 +35,14 @@ describe('aurora-stream-slice', () => {
 
   it('должен вернуть начальное состояние', () => {
     expect(auroraStreamReducer(undefined, { type: 'unknown' })).toEqual(
-      initialState
+      initialAuroraState
     );
   });
 
   describe('activateAuroraStream', () => {
     it('должен установить isStreaming в true при pending', () => {
       const action = { type: activateAuroraStream.pending.type };
-      const state = auroraStreamReducer(initialState, action);
+      const state = auroraStreamReducer(initialAuroraState, action);
       expect(state.isStreaming).toBe(true);
       expect(state.streamError).toBe(null);
     });
@@ -58,7 +52,7 @@ describe('aurora-stream-slice', () => {
         type: activateAuroraStream.fulfilled.type,
         payload: mockFeedsResponse
       };
-      const state = auroraStreamReducer(initialState, action);
+      const state = auroraStreamReducer(initialAuroraState, action);
       expect(state.isStreaming).toBe(false);
       expect(state.streamData).toEqual(mockOrders);
       expect(state.totalCount).toBe(1500);
@@ -74,7 +68,7 @@ describe('aurora-stream-slice', () => {
           // total и totalToday отсутствуют
         }
       };
-      const state = auroraStreamReducer(initialState, action);
+      const state = auroraStreamReducer(initialAuroraState, action);
       expect(state.streamData).toEqual(mockOrders);
       expect(state.totalCount).toBe(0);
       expect(state.todayCount).toBe(0);
@@ -89,7 +83,7 @@ describe('aurora-stream-slice', () => {
           totalToday: 0
         }
       };
-      const state = auroraStreamReducer(initialState, action);
+      const state = auroraStreamReducer(initialAuroraState, action);
       expect(state.streamData).toEqual([]);
       expect(state.totalCount).toBe(0);
       expect(state.todayCount).toBe(0);
@@ -100,7 +94,7 @@ describe('aurora-stream-slice', () => {
         type: activateAuroraStream.fulfilled.type,
         payload: null
       };
-      const state = auroraStreamReducer(initialState, action);
+      const state = auroraStreamReducer(initialAuroraState, action);
       expect(state.isStreaming).toBe(false);
       // Состояние не должно измениться при null payload
       expect(state.streamData).toEqual([]);
@@ -114,7 +108,7 @@ describe('aurora-stream-slice', () => {
         type: activateAuroraStream.rejected.type,
         error: { message: errorMessage }
       };
-      const state = auroraStreamReducer(initialState, action);
+      const state = auroraStreamReducer(initialAuroraState, action);
       expect(state.isStreaming).toBe(false);
       expect(state.streamError).toBe(errorMessage);
     });
@@ -124,7 +118,7 @@ describe('aurora-stream-slice', () => {
         type: activateAuroraStream.rejected.type,
         error: {}
       };
-      const state = auroraStreamReducer(initialState, action);
+      const state = auroraStreamReducer(initialAuroraState, action);
       expect(state.streamError).toBe('Ошибка активации аврора-потока');
     });
   });
@@ -137,7 +131,7 @@ describe('aurora-stream-slice', () => {
         totalToday: 10
       };
 
-      let state = auroraStreamReducer(initialState, {
+      let state = auroraStreamReducer(initialAuroraState, {
         type: activateAuroraStream.fulfilled.type,
         payload: firstResponse
       });

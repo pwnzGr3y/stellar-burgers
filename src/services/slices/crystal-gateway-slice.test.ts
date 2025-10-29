@@ -7,7 +7,8 @@ import crystalGatewayReducer, {
   initiatePasswordRecovery,
   completePasswordRecovery,
   clearGatewayError,
-  initializeGateway
+  initializeGateway,
+  initialCrystalState
 } from './crystal-gateway-slice';
 import { TUser } from '@utils-types';
 
@@ -19,12 +20,6 @@ jest.mock('@utils/cookie', () => ({
 }));
 
 describe('crystal-gateway-slice', () => {
-  const initialState = {
-    gatewayUser: null,
-    isGatewayActive: false,
-    isProcessing: false,
-    gatewayError: null
-  };
 
   const mockUser: TUser = {
     email: 'test@example.com',
@@ -37,14 +32,14 @@ describe('crystal-gateway-slice', () => {
 
   it('должен вернуть начальное состояние', () => {
     expect(crystalGatewayReducer(undefined, { type: 'unknown' })).toEqual(
-      initialState
+      initialCrystalState
     );
   });
 
   describe('clearGatewayError', () => {
     it('должен очистить ошибку', () => {
       const stateWithError = {
-        ...initialState,
+        ...initialCrystalState,
         gatewayError: 'Some error'
       };
       const state = crystalGatewayReducer(stateWithError, clearGatewayError());
@@ -57,7 +52,7 @@ describe('crystal-gateway-slice', () => {
       const { getCookie } = require('@utils/cookie');
       getCookie.mockReturnValue('some-token');
 
-      const state = crystalGatewayReducer(initialState, initializeGateway());
+      const state = crystalGatewayReducer(initialCrystalState, initializeGateway());
       expect(state.isGatewayActive).toBe(true);
     });
 
@@ -65,7 +60,7 @@ describe('crystal-gateway-slice', () => {
       const { getCookie } = require('@utils/cookie');
       getCookie.mockReturnValue(undefined);
 
-      const state = crystalGatewayReducer(initialState, initializeGateway());
+      const state = crystalGatewayReducer(initialCrystalState, initializeGateway());
       expect(state.isGatewayActive).toBe(false);
     });
   });
@@ -73,7 +68,7 @@ describe('crystal-gateway-slice', () => {
   describe('activateCrystalGateway', () => {
     it('должен установить isProcessing в true при pending', () => {
       const action = { type: activateCrystalGateway.pending.type };
-      const state = crystalGatewayReducer(initialState, action);
+      const state = crystalGatewayReducer(initialCrystalState, action);
       expect(state.isProcessing).toBe(true);
       expect(state.gatewayError).toBe(null);
     });
@@ -83,7 +78,7 @@ describe('crystal-gateway-slice', () => {
         type: activateCrystalGateway.fulfilled.type,
         payload: mockUser
       };
-      const state = crystalGatewayReducer(initialState, action);
+      const state = crystalGatewayReducer(initialCrystalState, action);
       expect(state.isProcessing).toBe(false);
       expect(state.gatewayUser).toEqual(mockUser);
       expect(state.isGatewayActive).toBe(true);
@@ -95,7 +90,7 @@ describe('crystal-gateway-slice', () => {
         type: activateCrystalGateway.rejected.type,
         error: { message: errorMessage }
       };
-      const state = crystalGatewayReducer(initialState, action);
+      const state = crystalGatewayReducer(initialCrystalState, action);
       expect(state.isProcessing).toBe(false);
       expect(state.gatewayError).toBe(errorMessage);
     });
@@ -105,7 +100,7 @@ describe('crystal-gateway-slice', () => {
         type: activateCrystalGateway.rejected.type,
         error: {}
       };
-      const state = crystalGatewayReducer(initialState, action);
+      const state = crystalGatewayReducer(initialCrystalState, action);
       expect(state.gatewayError).toBe('Ошибка активации кристального шлюза');
     });
   });
@@ -113,7 +108,7 @@ describe('crystal-gateway-slice', () => {
   describe('authenticateThroughGateway', () => {
     it('должен установить isProcessing в true при pending', () => {
       const action = { type: authenticateThroughGateway.pending.type };
-      const state = crystalGatewayReducer(initialState, action);
+      const state = crystalGatewayReducer(initialCrystalState, action);
       expect(state.isProcessing).toBe(true);
       expect(state.gatewayError).toBe(null);
     });
@@ -123,7 +118,7 @@ describe('crystal-gateway-slice', () => {
         type: authenticateThroughGateway.fulfilled.type,
         payload: mockUser
       };
-      const state = crystalGatewayReducer(initialState, action);
+      const state = crystalGatewayReducer(initialCrystalState, action);
       expect(state.isProcessing).toBe(false);
       expect(state.gatewayUser).toEqual(mockUser);
       expect(state.isGatewayActive).toBe(true);
@@ -135,7 +130,7 @@ describe('crystal-gateway-slice', () => {
         type: authenticateThroughGateway.rejected.type,
         error: { message: errorMessage }
       };
-      const state = crystalGatewayReducer(initialState, action);
+      const state = crystalGatewayReducer(initialCrystalState, action);
       expect(state.isProcessing).toBe(false);
       expect(state.gatewayError).toBe(errorMessage);
     });
@@ -143,7 +138,7 @@ describe('crystal-gateway-slice', () => {
 
   describe('deactivateCrystalGateway', () => {
     const authenticatedState = {
-      ...initialState,
+      ...initialCrystalState,
       gatewayUser: mockUser,
       isGatewayActive: true
     };
@@ -178,7 +173,7 @@ describe('crystal-gateway-slice', () => {
   describe('retrieveGatewayUser', () => {
     it('должен установить isProcessing в true при pending', () => {
       const action = { type: retrieveGatewayUser.pending.type };
-      const state = crystalGatewayReducer(initialState, action);
+      const state = crystalGatewayReducer(initialCrystalState, action);
       expect(state.isProcessing).toBe(true);
       expect(state.gatewayError).toBe(null);
     });
@@ -188,7 +183,7 @@ describe('crystal-gateway-slice', () => {
         type: retrieveGatewayUser.fulfilled.type,
         payload: mockUser
       };
-      const state = crystalGatewayReducer(initialState, action);
+      const state = crystalGatewayReducer(initialCrystalState, action);
       expect(state.isProcessing).toBe(false);
       expect(state.gatewayUser).toEqual(mockUser);
       expect(state.isGatewayActive).toBe(true);
@@ -200,7 +195,7 @@ describe('crystal-gateway-slice', () => {
         type: retrieveGatewayUser.rejected.type,
         error: { message: errorMessage }
       };
-      const state = crystalGatewayReducer(initialState, action);
+      const state = crystalGatewayReducer(initialCrystalState, action);
       expect(state.isProcessing).toBe(false);
       expect(state.gatewayError).toBe(errorMessage);
     });
@@ -208,7 +203,7 @@ describe('crystal-gateway-slice', () => {
 
   describe('updateGatewayUser', () => {
     const authenticatedState = {
-      ...initialState,
+      ...initialCrystalState,
       gatewayUser: mockUser,
       isGatewayActive: true
     };
@@ -246,7 +241,7 @@ describe('crystal-gateway-slice', () => {
   describe('initiatePasswordRecovery', () => {
     it('должен установить isProcessing в true при pending', () => {
       const action = { type: initiatePasswordRecovery.pending.type };
-      const state = crystalGatewayReducer(initialState, action);
+      const state = crystalGatewayReducer(initialCrystalState, action);
       expect(state.isProcessing).toBe(true);
       expect(state.gatewayError).toBe(null);
     });
@@ -256,7 +251,7 @@ describe('crystal-gateway-slice', () => {
         type: initiatePasswordRecovery.fulfilled.type,
         payload: 'test@example.com'
       };
-      const state = crystalGatewayReducer(initialState, action);
+      const state = crystalGatewayReducer(initialCrystalState, action);
       expect(state.isProcessing).toBe(false);
     });
 
@@ -266,7 +261,7 @@ describe('crystal-gateway-slice', () => {
         type: initiatePasswordRecovery.rejected.type,
         error: { message: errorMessage }
       };
-      const state = crystalGatewayReducer(initialState, action);
+      const state = crystalGatewayReducer(initialCrystalState, action);
       expect(state.isProcessing).toBe(false);
       expect(state.gatewayError).toBe(errorMessage);
     });
@@ -275,14 +270,14 @@ describe('crystal-gateway-slice', () => {
   describe('completePasswordRecovery', () => {
     it('должен установить isProcessing в true при pending', () => {
       const action = { type: completePasswordRecovery.pending.type };
-      const state = crystalGatewayReducer(initialState, action);
+      const state = crystalGatewayReducer(initialCrystalState, action);
       expect(state.isProcessing).toBe(true);
       expect(state.gatewayError).toBe(null);
     });
 
     it('должен завершить восстановление пароля при fulfilled', () => {
       const action = { type: completePasswordRecovery.fulfilled.type };
-      const state = crystalGatewayReducer(initialState, action);
+      const state = crystalGatewayReducer(initialCrystalState, action);
       expect(state.isProcessing).toBe(false);
     });
 
@@ -292,7 +287,7 @@ describe('crystal-gateway-slice', () => {
         type: completePasswordRecovery.rejected.type,
         error: { message: errorMessage }
       };
-      const state = crystalGatewayReducer(initialState, action);
+      const state = crystalGatewayReducer(initialCrystalState, action);
       expect(state.isProcessing).toBe(false);
       expect(state.gatewayError).toBe(errorMessage);
     });

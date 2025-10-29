@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import { SELECTORS, INGREDIENTS, PRICES } from '../support/selectors';
+
 describe('Создание заказа', () => {
   beforeEach(() => {
     cy.interceptApi();
@@ -18,61 +20,56 @@ describe('Создание заказа', () => {
     cy.visit('/');
     cy.wait('@getIngredients');
 
+    // Создаем aliases для часто используемых элементов
+    cy.get(SELECTORS.BURGER_CONSTRUCTOR).as('constructor');
+    cy.get(SELECTORS.TOTAL_PRICE).as('totalPrice');
+
     // Добавляем булку в конструктор
-    cy.get('[data-testid="burger-ingredient"]')
-      .contains('Краторная булка N-200i')
-      .parent()
-      .find('button')
-      .click();
+    cy.addIngredientToConstructor(INGREDIENTS.BUN);
 
     // Проверяем что булка добавлена
-    cy.get('[data-testid="burger-constructor"]')
-      .should('contain', 'Краторная булка N-200i');
+    cy.get('@constructor')
+      .should('contain', INGREDIENTS.BUN);
 
     // Добавляем начинку
-    cy.get('[data-testid="burger-ingredient"]')
-      .contains('Биокотлета из марсианской Магнолии')
-      .parent()
-      .find('button')
-      .click();
+    cy.addIngredientToConstructor(INGREDIENTS.MAIN);
 
     // Добавляем соус
-    cy.get('[data-testid="burger-ingredient"]')
-      .contains('Соус Spicy-X')
-      .parent()
-      .find('button')
-      .click();
+    cy.addIngredientToConstructor(INGREDIENTS.SAUCE);
 
     // Проверяем что все ингредиенты добавлены
-    cy.get('[data-testid="burger-constructor"]')
-      .should('contain', 'Биокотлета из марсианской Магнолии')
-      .and('contain', 'Соус Spicy-X');
+    cy.get('@constructor')
+      .should('contain', INGREDIENTS.MAIN)
+      .and('contain', INGREDIENTS.SAUCE);
 
     // Кликаем на кнопку оформления заказа
-    cy.get('[data-testid="order-button"]').click();
+    cy.get(SELECTORS.ORDER_BUTTON).click();
 
     // Ждем ответа от сервера
     cy.wait('@createOrder');
 
+    // Создаем alias для деталей заказа
+    cy.get(SELECTORS.ORDER_DETAILS).as('orderDetails');
+
     // Проверяем что открылось модальное окно с деталями заказа
-    cy.get('[data-testid="order-details"]').should('be.visible');
+    cy.get('@orderDetails').should('be.visible');
 
     // Проверяем номер заказа из фикстуры
-    cy.get('[data-testid="order-number"]').should('contain', '60547');
+    cy.get(SELECTORS.ORDER_NUMBER).should('contain', '60547');
 
     // Закрываем модальное окно
-    cy.get('[data-testid="modal-close"]').click();
+    cy.closeModalByButton();
 
     // Проверяем что модальное окно закрылось
-    cy.get('[data-testid="order-details"]').should('not.exist');
+    cy.get(SELECTORS.ORDER_DETAILS).should('not.exist');
 
     // Проверяем что конструктор очистился
-    cy.get('[data-testid="burger-constructor"]')
-      .should('not.contain', 'Биокотлета из марсианской Магнолии')
-      .and('not.contain', 'Соус Spicy-X');
+    cy.get('@constructor')
+      .should('not.contain', INGREDIENTS.MAIN)
+      .and('not.contain', INGREDIENTS.SAUCE);
 
     // Проверяем что стоимость сбросилась
-    cy.get('[data-testid="total-price"]').should('contain', '0');
+    cy.get('@totalPrice').should('contain', PRICES.EMPTY.toString());
   });
 
   it('должен перенаправлять на страницу логина при попытке оформления заказа без авторизации', () => {
@@ -82,20 +79,11 @@ describe('Создание заказа', () => {
     cy.wait('@getIngredients');
 
     // Добавляем ингредиенты
-    cy.get('[data-testid="burger-ingredient"]')
-      .contains('Краторная булка N-200i')
-      .parent()
-      .find('button')
-      .click();
-
-    cy.get('[data-testid="burger-ingredient"]')
-      .contains('Биокотлета из марсианской Магнолии')
-      .parent()
-      .find('button')
-      .click();
+    cy.addIngredientToConstructor(INGREDIENTS.BUN);
+    cy.addIngredientToConstructor(INGREDIENTS.MAIN);
 
     // Кликаем на кнопку оформления заказа
-    cy.get('[data-testid="order-button"]').click();
+    cy.get(SELECTORS.ORDER_BUTTON).click();
 
     // Проверяем что произошел редирект на страницу логина
     cy.url().should('include', '/login');
@@ -108,20 +96,11 @@ describe('Создание заказа', () => {
     cy.wait('@getIngredients');
 
     // Добавляем только начинку, без булки
-    cy.get('[data-testid="burger-ingredient"]')
-      .contains('Биокотлета из марсианской Магнолии')
-      .parent()
-      .find('button')
-      .click();
-
-    cy.get('[data-testid="burger-ingredient"]')
-      .contains('Соус Spicy-X')
-      .parent()
-      .find('button')
-      .click();
+    cy.addIngredientToConstructor(INGREDIENTS.MAIN);
+    cy.addIngredientToConstructor(INGREDIENTS.SAUCE);
 
     // Кнопка оформления заказа должна быть неактивна
-    cy.get('[data-testid="order-button"]').find('button').should('be.disabled');
+    cy.get(SELECTORS.ORDER_BUTTON).find('button').should('be.disabled');
   });
 
   it('должен корректно отображать общую стоимость заказа', () => {
@@ -130,35 +109,25 @@ describe('Создание заказа', () => {
     cy.visit('/');
     cy.wait('@getIngredients');
 
+    // Создаем alias для цены
+    cy.get(SELECTORS.TOTAL_PRICE).as('totalPrice');
+
     // Проверяем начальную стоимость
-    cy.get('[data-testid="total-price"]').should('contain', '0');
+    cy.get('@totalPrice').should('contain', PRICES.EMPTY.toString());
 
     // Добавляем булку (1255 * 2 = 2510)
-    cy.get('[data-testid="burger-ingredient"]')
-      .contains('Краторная булка N-200i')
-      .parent()
-      .find('button')
-      .click();
-
-    cy.get('[data-testid="total-price"]').should('contain', '2510');
+    cy.addIngredientToConstructor(INGREDIENTS.BUN);
+    cy.get('@totalPrice').should('contain', PRICES.BUN_TOTAL.toString());
 
     // Добавляем начинку (424)
-    cy.get('[data-testid="burger-ingredient"]')
-      .contains('Биокотлета из марсианской Магнолии')
-      .parent()
-      .find('button')
-      .click();
-
-    cy.get('[data-testid="total-price"]').should('contain', '2934');
+    cy.addIngredientToConstructor(INGREDIENTS.MAIN);
+    const priceAfterMain = PRICES.BUN_TOTAL + PRICES.MAIN;
+    cy.get('@totalPrice').should('contain', priceAfterMain.toString());
 
     // Добавляем соус (90)
-    cy.get('[data-testid="burger-ingredient"]')
-      .contains('Соус Spicy-X')
-      .parent()
-      .find('button')
-      .click();
-
-    cy.get('[data-testid="total-price"]').should('contain', '3024');
+    cy.addIngredientToConstructor(INGREDIENTS.SAUCE);
+    const finalPrice = priceAfterMain + PRICES.SAUCE;
+    cy.get('@totalPrice').should('contain', finalPrice.toString());
   });
 
   it('должен сохранять состояние конструктора при перезагрузке страницы', () => {
@@ -166,17 +135,8 @@ describe('Создание заказа', () => {
     cy.wait('@getIngredients');
 
     // Добавляем ингредиенты
-    cy.get('[data-testid="burger-ingredient"]')
-      .contains('Краторная булка N-200i')
-      .parent()
-      .find('button')
-      .click();
-
-    cy.get('[data-testid="burger-ingredient"]')
-      .contains('Биокотлета из марсианской Магнолии')
-      .parent()
-      .find('button')
-      .click();
+    cy.addIngredientToConstructor(INGREDIENTS.BUN);
+    cy.addIngredientToConstructor(INGREDIENTS.MAIN);
 
     // Перезагружаем страницу
     cy.reload();

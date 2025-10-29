@@ -1,15 +1,10 @@
 import quantumMaterialsReducer, {
-  fetchQuantumMaterials
+  fetchQuantumMaterials,
+  initialQuantumState
 } from './quantum-materials-slice';
 import { TIngredient } from '@utils-types';
 
 describe('quantum-materials-slice', () => {
-  const initialState = {
-    materials: [],
-    isLoading: false,
-    errorMessage: null,
-    lastFetchAttempt: null
-  };
 
   const mockIngredients: TIngredient[] = [
     {
@@ -42,13 +37,13 @@ describe('quantum-materials-slice', () => {
 
   it('должен вернуть начальное состояние', () => {
     expect(quantumMaterialsReducer(undefined, { type: 'unknown' })).toEqual(
-      initialState
+      initialQuantumState
     );
   });
 
   it('должен установить isLoading в true при fetchQuantumMaterials.pending', () => {
     const action = { type: fetchQuantumMaterials.pending.type };
-    const state = quantumMaterialsReducer(initialState, action);
+    const state = quantumMaterialsReducer(initialQuantumState, action);
     expect(state.isLoading).toBe(true);
     expect(state.errorMessage).toBe(null);
   });
@@ -58,7 +53,7 @@ describe('quantum-materials-slice', () => {
       type: fetchQuantumMaterials.fulfilled.type,
       payload: mockIngredients
     };
-    const state = quantumMaterialsReducer(initialState, action);
+    const state = quantumMaterialsReducer(initialQuantumState, action);
     expect(state.isLoading).toBe(false);
     expect(state.materials).toEqual(mockIngredients);
     expect(state.errorMessage).toBe(null);
@@ -69,7 +64,7 @@ describe('quantum-materials-slice', () => {
       type: fetchQuantumMaterials.fulfilled.type,
       payload: null
     };
-    const state = quantumMaterialsReducer(initialState, action);
+    const state = quantumMaterialsReducer(initialQuantumState, action);
     expect(state.materials).toEqual([]);
   });
 
@@ -79,7 +74,7 @@ describe('quantum-materials-slice', () => {
       type: fetchQuantumMaterials.rejected.type,
       error: { message: errorMessage }
     };
-    const state = quantumMaterialsReducer(initialState, action);
+    const state = quantumMaterialsReducer(initialQuantumState, action);
     expect(state.isLoading).toBe(false);
     expect(state.errorMessage).toBe(errorMessage);
   });
@@ -89,7 +84,7 @@ describe('quantum-materials-slice', () => {
       type: fetchQuantumMaterials.rejected.type,
       error: {}
     };
-    const state = quantumMaterialsReducer(initialState, action);
+    const state = quantumMaterialsReducer(initialQuantumState, action);
     expect(state.errorMessage).toBe('Ошибка загрузки квантовых материалов');
   });
 });

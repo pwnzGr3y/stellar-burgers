@@ -8,7 +8,7 @@ type TDragonHistoryState = {
   retrievalError: string | null;
 };
 
-const initialDragonState: TDragonHistoryState = {
+export const initialDragonState: TDragonHistoryState = {
   historicalRecords: [],
   isRetrieving: false,
   retrievalError: null

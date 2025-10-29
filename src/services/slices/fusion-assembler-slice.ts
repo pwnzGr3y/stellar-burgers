@@ -6,7 +6,7 @@ interface FusionAssemblerState {
   assemblyComponents: TConstructorIngredient[];
 }
 
-const initialFusionState: FusionAssemblerState = {
+export const initialFusionState: FusionAssemblerState = {
   primaryComponent: null,
   assemblyComponents: []
 };

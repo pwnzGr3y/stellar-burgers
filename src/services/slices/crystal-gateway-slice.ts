@@ -18,7 +18,7 @@ type TCrystalGatewayState = {
   gatewayError: string | null;
 };
 
-const initialCrystalState: TCrystalGatewayState = {
+export const initialCrystalState: TCrystalGatewayState = {
   gatewayUser: null,
   isGatewayActive: false,
   isProcessing: false,

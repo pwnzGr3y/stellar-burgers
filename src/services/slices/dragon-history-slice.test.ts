@@ -1,14 +1,10 @@
 import dragonHistoryReducer, {
-  retrieveDragonHistory
+  retrieveDragonHistory,
+  initialDragonState
 } from './dragon-history-slice';
 import { TOrder } from '@utils-types';
 
 describe('dragon-history-slice', () => {
-  const initialState = {
-    historicalRecords: [],
-    isRetrieving: false,
-    retrievalError: null
-  };
 
   const mockOrders: TOrder[] = [
     {
@@ -42,14 +38,14 @@ describe('dragon-history-slice', () => {
 
   it('должен вернуть начальное состояние', () => {
     expect(dragonHistoryReducer(undefined, { type: 'unknown' })).toEqual(
-      initialState
+      initialDragonState
     );
   });
 
   describe('retrieveDragonHistory', () => {
     it('должен установить isRetrieving в true при pending', () => {
       const action = { type: retrieveDragonHistory.pending.type };
-      const state = dragonHistoryReducer(initialState, action);
+      const state = dragonHistoryReducer(initialDragonState, action);
       expect(state.isRetrieving).toBe(true);
       expect(state.retrievalError).toBe(null);
     });
@@ -59,7 +55,7 @@ describe('dragon-history-slice', () => {
         type: retrieveDragonHistory.fulfilled.type,
         payload: mockOrders
       };
-      const state = dragonHistoryReducer(initialState, action);
+      const state = dragonHistoryReducer(initialDragonState, action);
       expect(state.isRetrieving).toBe(false);
       expect(state.historicalRecords).toEqual(mockOrders);
       expect(state.historicalRecords).toHaveLength(3);
@@ -71,7 +67,7 @@ describe('dragon-history-slice', () => {
         type: retrieveDragonHistory.fulfilled.type,
         payload: []
       };
-      const state = dragonHistoryReducer(initialState, action);
+      const state = dragonHistoryReducer(initialDragonState, action);
       expect(state.isRetrieving).toBe(false);
       expect(state.historicalRecords).toEqual([]);
       expect(state.retrievalError).toBe(null);
@@ -82,7 +78,7 @@ describe('dragon-history-slice', () => {
         type: retrieveDragonHistory.fulfilled.type,
         payload: null
       };
-      const state = dragonHistoryReducer(initialState, action);
+      const state = dragonHistoryReducer(initialDragonState, action);
       expect(state.isRetrieving).toBe(false);
       expect(state.historicalRecords).toEqual([]);
     });
@@ -93,7 +89,7 @@ describe('dragon-history-slice', () => {
         type: retrieveDragonHistory.rejected.type,
         error: { message: errorMessage }
       };
-      const state = dragonHistoryReducer(initialState, action);
+      const state = dragonHistoryReducer(initialDragonState, action);
       expect(state.isRetrieving).toBe(false);
       expect(state.retrievalError).toBe(errorMessage);
     });
@@ -103,7 +99,7 @@ describe('dragon-history-slice', () => {
         type: retrieveDragonHistory.rejected.type,
         error: {}
       };
-      const state = dragonHistoryReducer(initialState, action);
+      const state = dragonHistoryReducer(initialDragonState, action);
       expect(state.retrievalError).toBe('Ошибка получения драконьей истории');
     });
   });
@@ -111,7 +107,7 @@ describe('dragon-history-slice', () => {
   describe('обновление истории', () => {
     it('должен заменить старую историю новой при повторной загрузке', () => {
       const firstOrders = [mockOrders[0]];
-      let state = dragonHistoryReducer(initialState, {
+      let state = dragonHistoryReducer(initialDragonState, {
         type: retrieveDragonHistory.fulfilled.type,
         payload: firstOrders
       });
@@ -149,7 +145,7 @@ describe('dragon-history-slice', () => {
         type: retrieveDragonHistory.fulfilled.type,
         payload: mockOrders
       };
-      const state = dragonHistoryReducer(initialState, action);
+      const state = dragonHistoryReducer(initialDragonState, action);
 
       const doneOrders = state.historicalRecords.filter(
         (order) => order.status === 'done'
